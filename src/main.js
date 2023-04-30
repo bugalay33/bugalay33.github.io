@@ -667,7 +667,7 @@ cc.game.onStart = function(){
                 self.shuffleBlocks();
             }
         },
-        blastArea: function(clickedTile) {
+        bombArea: function(clickedTile) {
 
             let self = this;
 
@@ -716,6 +716,20 @@ cc.game.onStart = function(){
             let emptyBar = HeaderUI.getChildByTag("emptyBar");
             let barElement = HeaderUI.getChildByTag("barElement");
             let similarBlockTiles = null;
+
+            //sets blocks to delete with anim
+            function setBlocksToDelete() {
+
+                //deleting blocks
+                self._levelMap.forEach(e => {
+
+                    if (e.block._checked) {
+
+                        e.block._checked = false;
+                        e.block._toDelete = true;
+                    }
+                });
+            }
 
             //runs move anims
             function moveAnimRunner(time) {
@@ -827,18 +841,11 @@ cc.game.onStart = function(){
             switch (usingBoosterId) {
 
                 case -1:
-                    //returns similar block tiles
-                    function getSimilarBlockTiles() {
 
-                        self.markSimilarBlocks(clickedTile.xIndex, clickedTile.yIndex, clickedTile.block._color);
-
-                        let similarBlocks = self._levelMap.filter(e => e.block._checked == true);
-
-                        return similarBlocks;
-                    }
+                    self.markSimilarBlocks(clickedTile.xIndex, clickedTile.yIndex, clickedTile.block._color);
 
                     //getting array of similar blocks
-                    similarBlockTiles = getSimilarBlockTiles();
+                    similarBlockTiles = self._levelMap.filter(e => e.block._checked == true);
 
                     //checking if less than 3 blocks are selected
                     if (similarBlockTiles.length < self._levelInfo.minBlastableLength) {
@@ -848,31 +855,15 @@ cc.game.onStart = function(){
                         return;
                     };
 
-                    //deleting blocks
-                    self._levelMap.forEach(e => {
-
-                        if (e.block._checked) {
-
-                            e.block._checked = false;
-                            e.block._toDelete = true;
-                        }
-                    });
+                    setBlocksToDelete();
                     break;
 
                 case 0:
 
-                    self.blastArea(clickedTile);
+                    self.bombArea(clickedTile);
                     similarBlockTiles = self._levelMap.filter(e => e.block._checked);
 
-                    //deleting blocks
-                    self._levelMap.forEach(e => {
-
-                        if (e.block._checked) {
-
-                            e.block._checked = false;
-                            e.block._toDelete = true;
-                        }
-                    });
+                    setBlocksToDelete();
                     break;
 
             };
